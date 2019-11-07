@@ -28,12 +28,6 @@ library(cld2)
 library(purrr)
 library(printr)
 
-# Set API Keys
-api_key <- "T15fFdhwXfaBCKciTQNK49UnT"
-api_secret <- "y3YykPuxcIVtEs4m3EKcKo6b1V3uGYkfIOFzjP6LxCKmpYnApt"
-access_token <- "4701800378-dXKPM1DLcSczmt5bWOT9fXMkyhxozvqXMqCe7gv"
-access_token_secret <- "63c4cYKPNYjJYeeCq4lJ7oTZasIWFV5ECRv9PQ9toCv7T"
-
 
 ```
 
@@ -42,71 +36,6 @@ access_token_secret <- "63c4cYKPNYjJYeeCq4lJ7oTZasIWFV5ECRv9PQ9toCv7T"
 @import url('https://fonts.googleapis.com/css?family=Nanum+Gothic|Quicksand');
 </style>
 
-```{css}
-
-.navbar-inverse {
-  height: 70px;
-  background-color: white;
-  position:fixed;
-  z-index:1;
-}
-
-
-body {
-font-family: 'Nanum Gothic', sans-serif;
-   font-weight: light;
-}
-
-
-p {
-font-family: 'Quicksand', sans-serif;
-   font-weight: light;
-}
-
-h1 {
-  color: rgb(112, 111, 111);
-  font-size: 150%;
-}
-
-.title {
-  margin-right: 100px;
-}
-
-h2 {
-  color: rgb(226, 192, 78);
-  font-size: 130%;
-}
-
-h3 {
-  font-size: 200%;
- 
-  font-family: "Courier New", Courier, monospace;
-}
-
-h4 {
-  font-size: 120%;
- 
-  font-family: "Courier New", Courier, monospace;
-  
-}
-
-
-.footer {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    width: 98%;
-    
-   
-    text-align: right;
-}
-
-img {
-    max-width: 100%;
-    max-height: 100%;
-}
-
-```
 
 <div class="footer">
   <p> Updated `r Sys.time()` |  maloriejhughes@gmail.com | @data_all_day  </p>
