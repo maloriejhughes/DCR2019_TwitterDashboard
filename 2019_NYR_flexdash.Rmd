@@ -1,0 +1,448 @@
+---
+title: "NYR 2019 | Twitter Dashboard "
+output: 
+  flexdashboard::flex_dashboard:
+    theme: bootstrap
+    highlight: monochrome
+    vertical_layout: scroll
+    orientation: rows
+---
+
+
+```{r setup,  include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
+#library(raster)
+library(tidyverse)
+library(flexdashboard)
+library(rtweet)
+library(rgdal)
+library(lubridate)
+library(highcharter) # better than ggplot2. sorry not sorry
+### i don't even remember which of these packages I ended up using...
+library(tm)
+library(SnowballC)
+library(RColorBrewer)
+library(wordcloud)
+library(ngram)
+library(cld2)
+library(purrr)
+library(printr)
+
+# Set API Keys
+api_key <- "T15fFdhwXfaBCKciTQNK49UnT"
+api_secret <- "y3YykPuxcIVtEs4m3EKcKo6b1V3uGYkfIOFzjP6LxCKmpYnApt"
+access_token <- "4701800378-dXKPM1DLcSczmt5bWOT9fXMkyhxozvqXMqCe7gv"
+access_token_secret <- "63c4cYKPNYjJYeeCq4lJ7oTZasIWFV5ECRv9PQ9toCv7T"
+
+
+```
+
+
+<style>
+@import url('https://fonts.googleapis.com/css?family=Nanum+Gothic|Quicksand');
+</style>
+
+```{css}
+
+.navbar-inverse {
+  height: 70px;
+  background-color: white;
+  position:fixed;
+  z-index:1;
+}
+
+
+body {
+font-family: 'Nanum Gothic', sans-serif;
+   font-weight: light;
+}
+
+
+p {
+font-family: 'Quicksand', sans-serif;
+   font-weight: light;
+}
+
+h1 {
+  color: rgb(112, 111, 111);
+  font-size: 150%;
+}
+
+.title {
+  margin-right: 100px;
+}
+
+h2 {
+  color: rgb(226, 192, 78);
+  font-size: 130%;
+}
+
+h3 {
+  font-size: 200%;
+ 
+  font-family: "Courier New", Courier, monospace;
+}
+
+h4 {
+  font-size: 120%;
+ 
+  font-family: "Courier New", Courier, monospace;
+  
+}
+
+
+.footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 98%;
+    
+   
+    text-align: right;
+}
+
+img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+```
+
+<div class="footer">
+  <p> Updated `r Sys.time()` |  maloriejhughes@gmail.com | @data_all_day  </p>
+</div>
+  
+
+
+```{r set_params}
+
+# <script> document.write(new Date().toLocaleDateString()); </script>
+tag = 'rstatsnyc'   # what tweets to grab
+max.tweets = 5000   # at most how many?
+twitter_token <- create_token( consumer_key = api_key
+                            ,  consumer_secret =  api_secret
+                            ,  access_token=access_token
+                            ,  access_secret = access_token_secret )
+
+
+```
+
+
+```{r functions, message=FALSE, warning=FALSE}
+
+
+get_tweets.fun <- function( tag , max.tweets, twitter_token ){
+  
+#max.tweets <- 5000
+seed.num <- 1234
+
+rstats_tweets <- search_tweets( q = tag
+                              , n = max.tweets)
+
+temp<-gsub('\"',"", rstats_tweets$mentions_screen_name, fixed=TRUE)
+temp<-gsub('c(',"", temp, fixed=TRUE)
+temp<-gsub(")","",temp)
+temp<-gsub(" ","",temp)
+temp<-gsub(","," @", temp, fixed=TRUE)
+temp<-paste0("@",temp)
+rstats_tweets$mentions<-temp
+temp<-gsub('\"',"", rstats_tweets$hashtags, fixed=TRUE)
+temp<-gsub('c(',"", temp, fixed=TRUE)
+temp<-gsub(")","",temp)
+temp<-gsub(" ","",temp)
+temp<-gsub(","," #", temp, fixed=TRUE)
+temp<-paste0("#",temp)
+rstats_tweets$tags<-temp
+rstats_tweets$screen_name<-paste0("@",rstats_tweets$screen_name)
+rstats_tweets$created_at <-with_tz( rstats_tweets$created_at, "America/New_York")
+return(rstats_tweets)
+}
+
+rstats_tweets <- get_tweets.fun(tag=tag, max.tweets=max.tweets)
+user_count<- rstats_tweets  %>% filter(screen_name!="@rstatstweet" & screen_name!="@rstatsnyc" & screen_name!="@rstatsdc"
+                                         & screen_name!="@jaredlander") %>% group_by(screen_name) %>%
+  summarize(n=n(), retweets=length(is_retweet[is_retweet==TRUE]), original_tweets=length(is_retweet[is_retweet==FALSE])) %>% 
+  arrange(desc(n)) 
+
+
+nwords.fun<-function(string, pseudo=F){
+  ifelse( pseudo, 
+          pattern <- "\\S+", 
+          pattern <- "[[:alpha:]]+" 
+  )
+  str_count(string, pattern)
+}
+
+
+##### SUCCESS METRICS
+stopWords <- stopwords("en")
+new_dat <- rstats_tweets
+new_dat$text<- removeWords(new_dat$text, c(stopWords)) 
+
+user_all_words<- new_dat %>% filter(screen_name!="@rstatstweet" & screen_name!="@rstatsnyc" & screen_name!="@rstatsdc"
+         & screen_name!="@Work_Bench" & screen_name!="@LanderAnalytics"   & screen_name!=  "@GamerGeekNews"           & screen_name!="@rstats4ds"             & screen_name!="@jaredlander") %>%
+  group_by(screen_name) %>% 
+  summarise(num_tweets=n()
+            , retweets=length(is_retweet[is_retweet==TRUE])          # num retweets
+            , original_tweets=length(is_retweet[is_retweet==FALSE])  # num orig tweets
+            , retweeted_by_others = sum(retweet_count, na.rm=TRUE)   # total times X's post is shared
+            , liked_by_others = sum(favorite_count, na.rm=TRUE)      # total favorites on X's tweets
+            , followers=max(followers_count)                         # num followers
+            , num_photos=length(media_type[media_type=="photo"])     # num photos
+            , all_text= paste(tolower(text),collapse=" ")  # text from all posts
+            , total_words= nwords.fun(all_text)      # total words from all posts
+            
+            , num_users_mentions= str_count(all_text,"@")            # total mentions made by X
+            , num_hashtags= str_count(all_text,"#")                  # total tags made by X
+            , favorites_per_follower = liked_by_others/followers
+            ) %>%
+  mutate( `Mash-up Metric` = round( ifelse(original_tweets>0,1,0)*(5*retweeted_by_others + 3*liked_by_others  )/log(followers+1)
+          +  (num_photos+ num_users_mentions + num_hashtags)/(original_tweets+1)  )) %>%
+    arrange(desc( `Mash-up Metric`))
+ # , unique_vocabulary=nwords.fun( unique(str_split(trimws(gsub('[[:punct:] ]+',' ',removeWords( all_text,c(stopWords)) ), "both"),' ')))          
+```
+
+
+
+ #rstatsnyc
+=====================================
+
+
+![](IMAGES/NYR_logo.png)
+ 
+
+</br>
+
+Row
+-------------------------------------
+
+### Total Tweets {data-width=200}
+
+<center>
+```{r}
+valueBox(nrow(rstats_tweets) , icon="fa-twitter"
+         
+)
+
+
+```
+</center>
+
+### User Count {data-width=200}
+
+```{r}
+valueBox(length(unique(rstats_tweets$screen_name)) , icon="fa-user"
+         
+)
+```
+
+
+### SCOREBOARD #1
+```{r}
+scoreboard <- user_count %>%  
+  rename(Handle=screen_name,  Total = n , Retweets=retweets, `Original Tweets` = original_tweets) %>% 
+  dplyr::select(Handle , Total, `Original Tweets`) %>% slice(1:5)
+scoreboard
+#user_count[1:5,]
+
+```
+
+### SCOREBOARD #2 
+```{r}
+scoreboard2 <- user_all_words %>% 
+  rename(Handle=screen_name) %>% 
+  dplyr::select(Handle ,`Mash-up Metric` ) %>%  arrange(desc(`Mash-up Metric` )) %>%
+  slice(1:5)
+scoreboard2
+#user_count[1:5,]
+
+```
+
+
+
+
+Row {data-height=70}
+-------------------------------------
+
+<h3> Wordclouds </h3>
+
+Row
+-------------------------------------
+
+
+### Unigram  & Bigram
+
+<center>
+```{r, warning=FALSE, message=FALSE}
+
+
+# kindly ignore how stupid this function is. 
+ngram.fun<-function(comment_data,n){
+ # if(n==1){
+  stopWords <- stopwords("en")
+  comment_data$text<- removeWords(comment_data$text, c(stopWords)) 
+  comment_data <- comment_data %>% filter(nchar(text)>0)
+ # }
+ # stopWords <- stopwords("en")
+  #comment_data$text <- gsub('[[:punct:] ]+',' ',comment_data$text)
+comment_data$text<-gsub(".", "", comment_data$text, fixed = TRUE)
+comment_data$text<-gsub("--&gt", "", comment_data$text, fixed = TRUE)
+comment_data$text<-gsub(",", "", comment_data$text, fixed = TRUE)
+comment_data$text<-gsub(".", "", comment_data$text, fixed = TRUE)
+ comment_data$text<-gsub(";", "", comment_data$text, fixed = TRUE)
+  comment_data$text<-gsub(")", " ", comment_data$text, fixed = TRUE)
+  comment_data$text<-gsub("(", " ", comment_data$text, fixed = TRUE)
+ 
+comment_data$text<- trimws(comment_data$text, "both")
+  comment_data$text<-gsub("    ", " ", comment_data$text, fixed = TRUE)
+  comment_data$text<-gsub("   ", " ", comment_data$text, fixed = TRUE)
+  comment_data$text<-gsub("  ", " ", comment_data$text, fixed = TRUE)
+  comment_data$word_count<-sapply(strsplit(comment_data$text, " "), length)
+  comment_data<-subset(comment_data, word_count>=n)
+  
+  ng <- ngram(comment_data$text, n=n)
+  get.phrasetable(ng)
+}
+nc_1<-ngram.fun(rstats_tweets,1)
+nc_2<-ngram.fun(rstats_tweets,2)
+#nc_3<-ngram.fun(rstats_tweets,3)
+# side by side wordclouds
+opar <- par()   
+par(mfrow=c(1,2), mar=c(1, .5, 0, 0) ) 
+wordcloud(nc_1$ngrams,nc_1$freq,max.words=100,random.order = F, colors=brewer.pal(8, "Dark2"))
+wordcloud(nc_2$ngrams,nc_2$freq,max.words=100,random.order = F, colors=brewer.pal(8, "Dark2"))
+#wordcloud(nc_3$ngrams,nc_3$freq,max.words=100,random.order = F, colors=brewer.pal(8, "Dark2"))
+
+```
+</center>
+
+
+
+
+Row {data-height=70}
+-------------------------------------
+
+
+<h3> Tweet Timeline </h3>
+ 
+ 
+Row
+-------------------------------------
+ 
+
+### Tweets Over Time
+
+
+
+```{r, message=FALSE, warning=FALSE}
+
+rstats_tweets$hour<-floor_date(rstats_tweets$created_at, "30 mins")
+hour_count<- rstats_tweets %>% filter(created_at>="2019-05-09") %>% group_by(hour) %>%
+  summarize(n=n()) %>% mutate(hour=as_datetime(hour), n=as.integer(n)) 
+ 
+highchart()%>% 
+hc_add_series_times_values(hour_count$hour ,values=hour_count$n, showInLegend=FALSE, name="Tweet Count: ", color="slateblue")%>%
+   hc_xAxis( title=list(text="") ) %>%
+   hc_yAxis(title=list(text="Tweet Count") ) %>%
+  # hc_tooltip(useHTML = TRUE,  pointFormat = hour_count_tooltip) %>% 
+   hc_title(text='NYR Tweets Per 1/2 Hour')
+```
+
+
+Row {data-height=70}
+-------------------------------------
+
+
+<h3> Top 25 Tweeters (Total Tweets) </h3>
+
+
+Row {data-height=600}
+-------------------------------------
+
+
+
+### Top 25
+
+```{r, message=FALSE, warning=FALSE}
+# resetting par() to it's original state after modifying it for side-by-side wordclouds
+par(opar)
+user_count<- rstats_tweets  %>% filter(screen_name!="@rstatstweet" & screen_name!="@rstatsnyc" & screen_name!="@rstatsdc") %>% group_by(screen_name) %>%
+  summarize(n=n(), retweets=length(is_retweet[is_retweet==TRUE]), original_tweets=length(is_retweet[is_retweet==FALSE])) %>% 
+  arrange(desc(n)) 
+x <- c("Handle", "Tweet Coxunt ", "Original Tweets ", "Retweets " )
+y <- sprintf("{point.%s}", c("screen_name","n", "original_tweets", "retweets"))
+user_count_tooltip <- tooltip_table(x, y)
+# if you get errors here, remove the quotes from both hcaes() arguments.  Then complain to Hadley.
+hchart(user_count[1:25,], "bar",hcaes("screen_name" ,"n")) %>%
+   hc_xAxis(title=list(text="Twitter Handle"), labels=list(style=list(fontsize=14, color="slategrey")) ) %>%
+   hc_yAxis(title=list(text="Tweet Count") ) %>%
+   hc_tooltip(useHTML = TRUE, headerFormat = "", pointFormat = user_count_tooltip) %>% 
+   hc_title(text=paste0('NYR #',tag, ' Total Tweets')) %>% hc_size(height=600)
+```
+
+ 
+Row {data-height=70}
+-------------------------------------
+
+
+<h3> But... are they original? </h3>
+
+Row {data-height=600}
+-------------------------------------
+
+
+
+### Original VS Retweet Breakdown
+```{r}
+x <- c("Handle", "Tweet Count ", "Original Tweets " )
+y <- sprintf("{point.%s}", c("screen_name","n", "original_tweets"))
+user_count_tooltip <- tooltip_table(x, y)
+user_count$screen_name<-as.character(user_count$screen_name)
+user_count<- user_count %>% arrange(desc(original_tweets))
+# force it to stay in the original order rather than ordered by the first series, retweets
+user_count$screen_name<-factor(user_count$screen_name, levels=unique(user_count$screen_name))
+ highchart() %>%
+    hc_add_series( user_count[1:25,], "bar",hcaes("screen_name" ,"retweets"), name="Retweets") %>%
+   hc_add_series(user_count[1:25,], "bar",hcaes("screen_name" ,"original_tweets"), name="Original Tweets") %>%
+  
+  
+   hc_xAxis( title=list(text=""), labels=list(style=list(fontsize=14, color="slategrey")) , type="category") %>%
+   hc_yAxis(title=list(text="Tweet Count") ) %>%
+   hc_tooltip(useHTML = TRUE, headerFormat = "", pointFormat = user_count_tooltip) %>% 
+   hc_title(text=paste0('NYR #',tag, ' Original VS Retweet Count')) %>% hc_plotOptions(bar=list(stacking="normal")) %>% hc_size(height=600)
+  #%>% hc_legend(align = "right", verticalAlign = "top", layout = "vertical") 
+  
+  user_count<- user_count %>% arrange(desc(original_tweets))
+```
+
+
+
+
+Mash-up Metric Details
+=====================================
+
+```{r}
+# `Mash-up Metric` = (4*retweeted_by_others + 2*liked_by_others + original_tweets + .5*retweets )/log(followers) 
+  #        + (num_photos + num_users_mentions + num_hashtags)
+    
+```
+
+
+
+```{r}
+library(DT)
+
+user_all_words%>% #arrange(desc(`Mash-up Metric`)) %>%
+  #mutate(`Mash-up Metric`=round(log(`Mash-up Metric`),2))%>%
+  dplyr::select(screen_name, `Mash-up Metric`
+         , original_tweets 
+         , retweets
+         ,retweeted_by_others
+         ,liked_by_others
+         , followers
+         , num_photos 
+         , num_users_mentions 
+         , num_hashtags
+          ) %>% datatable( options = list( columnDefs = list(list(width = '70px')),
+  searchHighlight = TRUE,pageLength = 100, fixedColumns = list(leftColumns = 1)))
+```
