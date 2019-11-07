@@ -6,3 +6,4 @@
 scrap/
 
 R/credentials.R
+*.Rproj
