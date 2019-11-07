@@ -1,0 +1,101 @@
+
+.navbar {
+ 
+}
+.navbar-brand {
+color:black!important;
+}
+.navbar-inverse { 
+    
+  height: 70px; /* change to 140px and compare */
+  font-size: 90%; /* Size of the font that names the pages you can navigate between, not the title of the html */
+  background-color: white;
+  /*font-family: "Courier New", Courier, monospace;*/
+  position:fixed; /* if you change this to __________ the navigation bar will scroll with the rest of the 
+  page rather than act as a separate component that is always present on the screen */
+  z-index: 1; /*this puts the nav bar on top so that when you scroll, 
+  the content scrolls behind the nav bar. change to -1 to see the difference. */
+}
+
+
+body {
+font-family: 'Nanum Gothic', sans-serif;
+   font-weight: light;
+margin-top: 20px;
+margin-left: 10px;
+margin-right: 10px;
+}
+
+
+.footer {
+    position: fixed; 
+    left: 0;
+    bottom: 0;
+    width: 98%;
+    text-align: right;
+}
+
+p {
+font-family: 'Quicksand', sans-serif;
+   font-weight: light;
+}
+
+h1 {
+  color: rgb(112, 111, 111);
+  font-size: 150%;
+}
+
+
+.title {
+  margin-right: 100px;
+}
+
+h2 {
+  color: rgb(226, 192, 78);
+  font-size: 130%;
+}
+
+h3 {
+  font-size: 200%;
+ 
+  font-family: "Courier New", Courier, monospace;
+}
+
+h4 {
+  font-size: 120%;
+ 
+  font-family: "Courier New", Courier, monospace;
+  
+}
+
+
+.footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 98%;
+    
+   
+    text-align: right;
+}
+
+img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+
+.knockout {
+  background: url(http://apod.nasa.gov/apod/image/0603/coma_misti.jpg) -80px -80px;
+  color: red;
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  font-weight: bold;
+  font-size: 100px;
+  font-family: arial, helvetica;
+  width: 600px;
+  margin: 50px auto;
+  text-align: center;
+}
+
+/*body{ background: #444;}*/
