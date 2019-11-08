@@ -70,7 +70,7 @@ ngram.fun<-function(comment_data,n){
   comment_data$text<-gsub("   ", " ", comment_data$text, fixed = TRUE)
   comment_data$text<-gsub("  ", " ", comment_data$text, fixed = TRUE)
   comment_data$word_count<-sapply(strsplit(comment_data$text, " "), length)
-  #comment_data<-subset(comment_data, word_count>=n)
+  comment_data<-subset(comment_data, word_count>=n)
   
   ng <- ngram(comment_data$text, n=n)
   get.phrasetable(ng)
