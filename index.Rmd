@@ -159,8 +159,8 @@ nc_2<-ngram.fun(rstats_tweets,2)
 # side by side wordclouds
 opar <- par()   
 par(mfrow=c(1,2), mar=c(1, .5, 0, 0) ) 
-wordcloud(nc_1$ngrams,nc_1$freq,max.words=100,random.order = F,  colors=dcrPalette)
-wordcloud(nc_2$ngrams,nc_2$freq,max.words=100,random.order = F,  colors=dcrPalette)
+wordcloud(nc_1$ngrams,nc_1$freq,max.words=200,random.order = F,  colors=dcrPalette)
+wordcloud(nc_2$ngrams,nc_2$freq,max.words=200,random.order = F,  colors=dcrPalette)
 #wordcloud(nc_3$ngrams,nc_3$freq,max.words=100,random.order = F, colors=brewer.pal(8, "Dark2"))
 
 ```
@@ -185,14 +185,14 @@ Row
 
 
 ```{r, message=FALSE, warning=FALSE}
-
+#rstats_tweets$created_at_EST<-format(pb.date, tz="America/New_York",usetz=TRUE)
 rstats_tweets$hour<-floor_date(rstats_tweets$created_at, "30 mins")
 hour_count<- rstats_tweets %>% filter(created_at>=MIN_DATE) %>% group_by(hour) %>%
   summarize(n=n()) %>% mutate(hour=as_datetime(hour), n=as.integer(n)) 
  
 highchart()%>% 
-hc_add_series_times_values(hour_count$hour ,hour_count$n, showInLegend=FALSE, name="Tweet Count: ") %>% # , color="slateblue")%>%
-   hc_xAxis( title=list(text=""),type = "datetime" ) %>%
+hc_add_series_times_values(hour_count$hour ,hour_count$n, showInLegend=FALSE, name="Tweet Count: ") %>% 
+   hc_xAxis( title=list(text="")) %>%
    hc_yAxis(title=list(text="Tweet Count") ) %>%
   # hc_tooltip(useHTML = TRUE,  pointFormat = hour_count_tooltip) %>% 
    hc_title(text='DCR Tweets Per 1/2 Hour') %>% 
