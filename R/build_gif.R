@@ -92,7 +92,7 @@ for(i in 1:nrow(media_id)){
                    , degrees= as.integer( sample(seq(330:390),1)), location = "+45+45") %>%
     image_annotate(paste0("Mentions: ",as.character(media_id$mentions[i])), size = 20,  boxcolor = "white", color="black"
                    ,  gravity="south") %>%
-    image_annotate(as.character(media_id$hashtags[i]), size = 25,  boxcolor = "lightgrey", color="black"
+    image_annotate(as.character(media_id$hashtags[i]), size = 20,  boxcolor = "lightgrey", color="black"
                    ,  gravity="north")
   
   img<- img %>% image_join(img2)
