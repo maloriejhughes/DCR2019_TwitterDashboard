@@ -88,11 +88,11 @@ for(i in 1:nrow(media_id)){
   
   img2<- image_read(as.character(media_id$media_id[i])) 
   img2<- image_scale(img2,  paste0("x",as.character(min(400,image_info(img2)$height)))) %>%
-    image_annotate(as.character(media_id$screen_name[i]), size = 20,  boxcolor = "black", color="white"
+    image_annotate(as.character(media_id$screen_name[i]), size = 18,  boxcolor = "black", color="white"
                    , degrees= as.integer( sample(seq(330:390),1)), location = "+45+45") %>%
-    image_annotate(paste0("Mentions: ",as.character(media_id$mentions[i])), size = 20,  boxcolor = "white", color="black"
+    image_annotate(paste0("Mentions: ",as.character(media_id$mentions[i])), size = 18,  boxcolor = "white", color="black"
                    ,  gravity="south") %>%
-    image_annotate(as.character(media_id$hashtags[i]), size = 20,  boxcolor = "lightgrey", color="black"
+    image_annotate(as.character(media_id$hashtags[i]), size = 18,  boxcolor = "lightgrey", color="black"
                    ,  gravity="north")
   
   img<- img %>% image_join(img2)
@@ -101,5 +101,5 @@ for(i in 1:nrow(media_id)){
 
 img %>% #image_join() %>% # joins image
   image_animate(fps=1) %>% # animates, can opt for number of loops
-  image_write("IMAGES/dcr2019_2.gif")
+  image_write("IMAGES/dcr2019_3.gif")
 

@@ -176,7 +176,7 @@ Row {data-height=400}
 ### Shared on Twitter
 <center>
 
-![](IMAGES/dcr2019_.gif)
+![](IMAGES/dcr2019_3.gif)
 </center>
 
 
