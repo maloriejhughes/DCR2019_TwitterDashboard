@@ -107,11 +107,13 @@ Row
 ```{r}
 valueBox(nrow(rstats_tweets) , icon="fa-twitter"
 )
+
 ```
 </center>
 
 
 ### User Count {data-width=200}
+</br>
 
 ```{r}
 valueBox(length(unique(rstats_tweets$screen_name)) , icon="fa-user"
