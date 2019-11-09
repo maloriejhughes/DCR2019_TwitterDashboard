@@ -119,7 +119,7 @@ valueBox(length(unique(rstats_tweets$screen_name)) , icon="fa-user"
 ```
 
 ### SCOREBOARD #1 : 
-Contribution & Engagement
+<center><font color="#9D1C1E">Contribution & Engagement</font></center>
 
 ```{r}
 scoreboard1 <- user_all_words %>% 
@@ -133,7 +133,7 @@ scoreboard1
 
 
 ### SCOREBOARD #2: 
-Total Tweets
+<center><font color="#9D1C1E">Total Tweets</font></center>
 
 ```{r}
 scoreboard <- user_count %>%  
@@ -145,7 +145,7 @@ scoreboard
 
 ### SCOREBOARD #3 : 
 
-Dedicated Small Players
+<center><font color="#9D1C1E">Dedicated Small Players</font></center>
 
 ```{r}
 scoreboard2 <- user_all_words %>% 
