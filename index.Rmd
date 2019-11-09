@@ -98,20 +98,6 @@ user_all_words <- prep_metrics_for_composite_score.fun(rstats_tweets, exclude_sc
 </br>
 
 
-Row {data-height=400}
--------------------------------------
-<center>
-
-![](IMAGES/dcr2019.gif)
-</center>
-
-
-</br>
-
-
-Row {data-height=30}
--------------------------------------
-
 Row
 -------------------------------------
 
@@ -172,16 +158,28 @@ scoreboard
 
 
 
+
 Row {data-height=70}
 -------------------------------------
 
-<h3> Wordclouds </h3>
 
-Row
+<h3> What we're Tweeting </h3>
+ 
+
+Row {data-height=400}
 -------------------------------------
 
+### Shared on Twitter
+</br>
+</br>
+<center>
 
-### Unigram  & Bigram
+![](IMAGES/dcr2019.gif)
+</center>
+
+
+
+### Wordclouds : Unigram  & Bigram
 
 <center>
 ```{r}
@@ -319,6 +317,7 @@ library(DT)
 user_all_words%>% #arrange(desc(`Mash-up Metric`)) %>%
   #mutate(`Mash-up Metric`=round(log(`Mash-up Metric`),2))%>%
   dplyr::select(screen_name, `Contribution & Engagement`
+                , `Dedicated Small Players`
          , original_tweets 
          , retweets
          , retweeted_by_others
