@@ -9,7 +9,6 @@ output:
     orientation: rows
 ---
 
-
 ```{r setup,  include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
 #library(raster)
@@ -98,6 +97,21 @@ user_all_words <- prep_metrics_for_composite_score.fun(rstats_tweets, exclude_sc
 
 </br>
 
+
+Row {data-height=400}
+-------------------------------------
+<center>
+
+![](IMAGES/dcr2019.gif)
+</center>
+
+
+</br>
+
+
+Row {data-height=30}
+-------------------------------------
+
 Row
 -------------------------------------
 
@@ -118,25 +132,43 @@ valueBox(length(unique(rstats_tweets$screen_name)) , icon="fa-user"
 )
 ```
 
+### SCOREBOARD #1 : 
+Contribution & Engagement
 
-### SCOREBOARD #1
 ```{r}
-scoreboard <- user_count %>%  
-  rename(Handle=screen_name,  Total = n , Retweets=retweets, `Original Tweets` = original_tweets) %>% 
-  dplyr::select(Handle , Total, `Original Tweets`) %>% slice(1:5)
-scoreboard
+scoreboard1 <- user_all_words %>% 
+  rename(Handle=screen_name) %>% 
+  dplyr::select(Handle ,`Contribution & Engagement` ) %>%  arrange(desc(`Contribution & Engagement` )) %>%
+  rename(Score= `Contribution & Engagement` ) %>%
+  slice(1:5)
+scoreboard1
+
 ```
 
-### SCOREBOARD #2 
+
+### SCOREBOARD #2: 
+Dedicated Small Players
+
 ```{r}
 scoreboard2 <- user_all_words %>% 
   rename(Handle=screen_name) %>% 
-  dplyr::select(Handle ,`Mash-up Metric` ) %>%  arrange(desc(`Mash-up Metric` )) %>%
+  dplyr::select(Handle ,`Dedicated Small Players` ) %>%  arrange(desc(`Dedicated Small Players` )) %>%
+  rename(Score= `Dedicated Small Players` ) %>%
   slice(1:5)
 scoreboard2
 
 ```
 
+
+### SCOREBOARD #3 : 
+Total Tweets
+
+```{r}
+scoreboard <- user_count %>%  
+  rename(Handle=screen_name,  `Total Tweets` = n , Retweets=retweets, `Original Tweets` = original_tweets) %>% 
+  dplyr::select(Handle ,  `Total Tweets`, ) %>% slice(1:5)
+scoreboard
+```
 
 
 
@@ -286,7 +318,7 @@ library(DT)
 
 user_all_words%>% #arrange(desc(`Mash-up Metric`)) %>%
   #mutate(`Mash-up Metric`=round(log(`Mash-up Metric`),2))%>%
-  dplyr::select(screen_name, `Mash-up Metric`
+  dplyr::select(screen_name, `Contribution & Engagement`
          , original_tweets 
          , retweets
          , retweeted_by_others
