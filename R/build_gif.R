@@ -70,7 +70,7 @@ media_id<-data.frame(media_id=unlist(rstats_tweets$media_url)
                      , screen_name=rstats_tweets$screen_name
                      , hashtags=   rstats_tweets$tags
                      , mentions=   rstats_tweets$mentions
-) %>% filter(date >= "2019-11-06" , !is.na(media_id))%>% group_by(date) %>% sample_n(min(15,n()))
+) %>% filter(date >= "2019-11-06" , !is.na(media_id))%>% group_by(date) %>% sample_n(min(25,n()))
  
 
 # Gif! --------------------------------------------------------------------
@@ -86,10 +86,11 @@ media_id<-data.frame(media_id=unlist(rstats_tweets$media_url)
 img<-NULL
 for(i in 1:nrow(media_id)){
   
-  img2<- image_read(as.character(media_id$media_id[i])) %>% 
-    image_annotate(as.character(media_id$screen_name[i]), size = 25,  boxcolor = "black", color="white"
-                   , degrees= as.integer( sample(seq(330:360),1)), location = "+45+45") %>%
-    image_annotate(paste0("Mentions: ",as.character(media_id$mentions[i])), size = 25,  boxcolor = "white", color="black"
+  img2<- image_read(as.character(media_id$media_id[i])) 
+  img2<- image_scale(img2,  paste0("x",as.character(min(400,image_info(img2)$height)))) %>%
+    image_annotate(as.character(media_id$screen_name[i]), size = 20,  boxcolor = "black", color="white"
+                   , degrees= as.integer( sample(seq(330:390),1)), location = "+45+45") %>%
+    image_annotate(paste0("Mentions: ",as.character(media_id$mentions[i])), size = 20,  boxcolor = "white", color="black"
                    ,  gravity="south") %>%
     image_annotate(as.character(media_id$hashtags[i]), size = 25,  boxcolor = "lightgrey", color="black"
                    ,  gravity="north")
@@ -98,7 +99,7 @@ for(i in 1:nrow(media_id)){
   
 }
 
-img %>% image_join() %>% # joins image
+img %>% #image_join() %>% # joins image
   image_animate(fps=1) %>% # animates, can opt for number of loops
-  image_write("IMAGES/dcr2019.gif")
+  image_write("IMAGES/dcr2019_2.gif")
 

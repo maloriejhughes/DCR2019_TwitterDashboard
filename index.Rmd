@@ -35,7 +35,7 @@ source('R/TwitterDashboard_functions.R')
 
 
 ```{r set_params}
-
+MIN_DATE_TS='2019-11-08'
 MIN_DATE='2019-11-06'
 tag = 'rstatsdc'   # what tweets to grab
 max.tweets = 5000   # at most how many?
@@ -133,6 +133,18 @@ scoreboard1
 
 
 ### SCOREBOARD #2: 
+Total Tweets
+
+```{r}
+scoreboard <- user_count %>%  
+  rename(Handle=screen_name,  `Total Tweets` = n , Retweets=retweets, `Original Tweets` = original_tweets) %>% 
+  dplyr::select(Handle ,  `Total Tweets`, ) %>% slice(1:5)
+scoreboard
+```
+
+
+### SCOREBOARD #3 : 
+
 Dedicated Small Players
 
 ```{r}
@@ -145,16 +157,6 @@ scoreboard2
 
 ```
 
-
-### SCOREBOARD #3 : 
-Total Tweets
-
-```{r}
-scoreboard <- user_count %>%  
-  rename(Handle=screen_name,  `Total Tweets` = n , Retweets=retweets, `Original Tweets` = original_tweets) %>% 
-  dplyr::select(Handle ,  `Total Tweets`, ) %>% slice(1:5)
-scoreboard
-```
 
 
 
@@ -174,7 +176,7 @@ Row {data-height=400}
 </br>
 <center>
 
-![](IMAGES/dcr2019.gif)
+![](IMAGES/dcr2019_.gif)
 </center>
 
 
@@ -216,16 +218,16 @@ Row
 
 ```{r, message=FALSE, warning=FALSE}
 #rstats_tweets$created_at_EST<-format(pb.date, tz="America/New_York",usetz=TRUE)
-rstats_tweets$hour<-floor_date(rstats_tweets$created_at, "30 mins")
-hour_count<- rstats_tweets %>% filter(created_at>=MIN_DATE) %>% group_by(hour) %>%
-  summarize(n=n()) %>% mutate(hour=as_datetime(hour), n=as.integer(n)) 
- 
+rstats_tweets$hour<-floor_date(rstats_tweets$created_at, "15 mins")
+hour_count<- rstats_tweets %>% filter(created_at>=MIN_DATE_TS) %>% #group_by(hour) %>%
+   count(hour) #mutate( n=as.integer(n)) 
+  
 highchart()%>% 
 hc_add_series_times_values(hour_count$hour ,hour_count$n, showInLegend=FALSE, name="Tweet Count: ") %>% 
    hc_xAxis( title=list(text="")) %>%
    hc_yAxis(title=list(text="Tweet Count") ) %>%
   # hc_tooltip(useHTML = TRUE,  pointFormat = hour_count_tooltip) %>% 
-   hc_title(text='DCR Tweets Per 1/2 Hour') %>% 
+   hc_title(text='DCR Tweets Per 1/4 Hour') %>% 
   hc_colors(dcrPalette)
 
 ```
