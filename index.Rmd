@@ -304,17 +304,17 @@ user_count$screen_name<-factor(user_count$screen_name, levels=unique(user_count$
 
 Mash-up Metric Details
 =====================================
-<h3>  Contribution & Engagement</h3>
+<h3>  Contribution & Engagement  </h3> 
 
  
 
-$$  \equiv I_{original\_tweets>0} \times \frac{5*retweeted\_by\_others + 3*liked\_by\_others}{\ln(followers+1) + 1} + 
+$$:=  I_{original\_tweets>0} \times \frac{5*retweeted\_by\_others + 3*liked\_by\_others}{\ln(followers+1) + 1} + 
 \frac{num\_photos+ num\_users\_mentions + num\_hashtags}{original\_tweets+1} $$
 
 
 
-<h3>Dedicated Small Players</h3> 
-$$ \equiv I_{original\_tweets>0}\times\frac{num\_photos+ num\_users\_mentions + num\_hashtags + original\_tweets+ retweets} {I_{followers<500} +I_{followers>=500}*\sqrt(followers - 500)} $$ 
+<h3>Dedicated Small Players </h3> 
+$$:= \frac{num\_photos+ num\_users\_mentions + num\_hashtags + original\_tweets+ retweets} {I_{followers\leq500} +I_{followers>500}*\sqrt(followers - 500)} $$ 
          
 
 ```{r}
