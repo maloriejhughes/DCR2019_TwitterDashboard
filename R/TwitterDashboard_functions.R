@@ -6,7 +6,8 @@ exclude_screen_name_list=c("@rstatstweet"
                           , "@LanderAnalytics"
                           , "@GamerGeekNews"
                           , "@rstats4ds"  
-                          , "@jaredlander")
+                          , "@jaredlander"
+                          ,"@R4DScommunity")
 
 # GENERL PURPOSE FUNCTIONS ------------------------------------------------
 
@@ -105,8 +106,10 @@ user_all_words<- new_dat %>% filter(screen_name!="@rstatstweet" & screen_name!="
             , num_hashtags= str_count(all_text,"#")                  # total tags made by X
             , favorites_per_follower = liked_by_others/followers
   ) %>%
-  mutate( `Mash-up Metric` = round( ifelse(original_tweets>0,1,0)*(5*retweeted_by_others + 3*liked_by_others  )/log(followers+1)
-                                    +  (num_photos+ num_users_mentions + num_hashtags)/(original_tweets+1)  )) %>%
-  arrange(desc( `Mash-up Metric`))
+  mutate( `Contribution & Engagement` = round( ifelse(original_tweets>0,1,0)*(5*retweeted_by_others + 3*liked_by_others  )/(log(followers+1) + 1)
+                                    +  (num_photos+ num_users_mentions + num_hashtags)/(original_tweets+1)  )
+          , `Dedicated Small Players` = round( ifelse(original_tweets>0,1,0)*(num_photos+ num_users_mentions + num_hashtags + original_tweets+ retweets )/ifelse(followers<500,1,  sqrt(followers-500) ) ) 
+          ) %>%
+  arrange(desc( `Contribution & Engagement`))
 return(user_all_words)
 }
