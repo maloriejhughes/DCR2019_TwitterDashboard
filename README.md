@@ -6,3 +6,6 @@ Use the gh-pages branch bc I suck at github.
 Twitter Dashboard for DCR2019
 
 https://maloriejhughes.github.io/DCR2019_TwitterDashboard/
+
+The final product is index.Rmd, which builds index.html
+
